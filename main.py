@@ -1,10 +1,10 @@
 from fastapi import FastAPI
 import httpx
-import json
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from fastapi import FastAPI
 
 from fastapi.middleware.cors import CORSMiddleware
+
+from controllers import login_controller
 
 
 app = FastAPI()
@@ -16,6 +16,8 @@ app.add_middleware(
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, OPTIONS, etc.)
     allow_headers=["*"],  # Allow all headers
 )
+
+app.include_router(login_controller.router)
 
 @app.get("/")
 def read_root():
@@ -34,27 +36,3 @@ async def get_films():
         if response.status_code == 200:
             return response.json()  # Returns the JSON response
         return {"error": f"Failed to fetch films: {response.status_code}"}
-    
-# Define request model
-class LoginRequest(BaseModel):
-    username: str
-    password: str
-
-# Function to verify login from users.json
-def verify_login(username: str, password: str) -> bool:
-    try:
-        with open("./db/users.json", "r") as file:
-            data = json.load(file)
-            for user in data["users"]:
-                if user["username"] == username and user["password"] == password:
-                    return True
-    except FileNotFoundError:
-        raise HTTPException(status_code=500, detail="User file not found")
-    return False
-
-# Login endpoint
-@app.post("/api/login")
-def login(request: LoginRequest):
-    if verify_login(request.username, request.password):
-        return {"success": True}
-    raise HTTPException(status_code=401, detail="Invalid credentials")
