@@ -4,10 +4,13 @@ from fastapi import FastAPI
 
 from fastapi.middleware.cors import CORSMiddleware
 
-from controllers import login_controller
+from controllers import login_controller, swapi_controller
+from middleware.auth_middleware import AuthMiddleware
 
 
 app = FastAPI()
+
+app.add_middleware(AuthMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,7 +20,10 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
+
+
 app.include_router(login_controller.router)
+app.include_router(swapi_controller.router)
 
 @app.get("/")
 def read_root():

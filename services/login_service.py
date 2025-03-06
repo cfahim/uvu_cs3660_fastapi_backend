@@ -4,6 +4,7 @@ import datetime
 from repositories.user_repository import UserRepository
 
 # Secret key for signing JWT (store securely in environment variables)
+# We want this secret and not in the code, we'll remove it later using .env
 SECRET_KEY = "your_secret_key_your_secret_key_your_secret_key_your_secret_key_your_secret_key_"
 ALGORITHM = "HS256"
 
