@@ -1,16 +1,17 @@
 from fastapi import FastAPI
 from fastapi import FastAPI
+from fastapi.openapi.utils import get_openapi
 
 from fastapi.middleware.cors import CORSMiddleware
 
 from controllers import login_controller, swapi_controller
 from middleware.auth_middleware import AuthMiddleware
+from schemas.message_schema import MessageResponse
 
 
-app = FastAPI()
+app = FastAPI(title="CS3660 Backend Project", version="1.0.0")
 
 app.add_middleware(AuthMiddleware)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],  # Allow requests from React frontend
@@ -24,11 +25,71 @@ app.add_middleware(
 app.include_router(login_controller.router)
 app.include_router(swapi_controller.router)
 
-@app.get("/")
+@app.get("/", response_model=MessageResponse)
 def read_root():
     return {"message": "Hello, FastAPI!"}
 
-@app.get("/health")
+@app.get("/health", response_model=MessageResponse)
 def health():
     return {"message": "Ok"}
 
+
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    
+    openapi_schema = get_openapi(
+        title=app.title,
+        version=app.version,
+        description="CS3660 Backend Project",
+        routes=app.routes,
+    )
+
+    
+    openapi_schema["openapi"] = "3.0.1"
+    
+    openapi_schema["paths"] = {
+        path.rstrip("/") if path != "/" else path: data 
+        for path, data in openapi_schema["paths"].items() if path != ""
+    }
+   
+    for schema_name, schema in openapi_schema["components"]["schemas"].items():
+        if "properties" in schema:
+            for field_name, field in schema["properties"].items():
+                if "anyOf" in field:
+                    field["type"] = "string"  # Replace 'anyOf' with AWS-supported format
+                    field["nullable"] = True
+                    del field["anyOf"]
+    
+    for path, methods in openapi_schema["paths"].items():
+        for method, data in methods.items():
+            if "operationId" in data:
+                data["operationId"] = "".join(
+                    word.capitalize() for word in data["operationId"].split("_")
+                )  # Convert to CamelCase
+
+    """"
+    "openapi_schema["components"]["securitySchemes"] = {
+        "BearerAuth": {
+            "type": "apiKey",
+            "in": "header",
+            "name": "Authorization",
+        }
+    }
+
+    for path, methods in openapi_schema["paths"].items():
+        if path != "/api/login":  # Skip authentication for login endpoint
+            for method in methods:
+                methods[method]["security"] = [{"BearerAuth": []}]"
+    """
+
+    # Ensure All Response Models Have `"type": "object"`
+    for schema_name, schema in openapi_schema["components"]["schemas"].items():
+        if "type" not in schema:
+            schema["type"] = "object"  # Add type explicitly
+
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+app.openapi = custom_openapi
