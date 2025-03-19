@@ -23,7 +23,7 @@ class AuthMiddleware(BaseHTTPMiddleware):
         try:
             LoginService.verify_token(token)
         except Exception as e:
-            raise HTTPException(status_code=401, detail=str(e))
+            raise JSONResponse(status_code=401, content={"detail": str(e)})
 
         return await call_next(request)   
 
