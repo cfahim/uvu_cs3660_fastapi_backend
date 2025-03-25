@@ -1,0 +1,20 @@
+# so we can use a normal curl 
+sudo dnf swap curl-minimal curl -y
+
+# install all packages pyenv need
+sudo dnf install -y gcc gcc-c++ make git tar curl zlib-devel bzip2 bzip2-devel readline-devel sqlite sqlite-devel \
+    openssl openssl-devel libffi-devel xz xz-devel findutils
+
+
+# install pyenv
+curl https://pyenv.run | bash
+
+
+# so pyenv puts correct python on the path
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv virtualenv-init -)"
+
+
+# restart shell
+exec $SHELL
