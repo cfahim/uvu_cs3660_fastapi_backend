@@ -15,9 +15,6 @@ from schemas.message_schema import MessageResponse
 app = FastAPI(title="CS3660 Backend Project", version="1.0.0")
 
 app.add_middleware(AuthMiddleware)
-app.add_middleware(ApiGatewayAuthMiddleware)  # Middleware to check API token
-
-
 # CORS is handled through API Gateway, only need for testing locally
 if settings.app_env == "local":
     app.add_middleware(
@@ -27,6 +24,10 @@ if settings.app_env == "local":
         allow_methods=["*"],  # Allow all HTTP methods (GET, POST, OPTIONS, etc.)
         allow_headers=["*"],  # Allow all headers
     )
+
+app.add_middleware(ApiGatewayAuthMiddleware)  # Middleware to check API token
+
+
 
 
 
