@@ -11,7 +11,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
 
     async def dispatch(self, request: Request, call_next):
-        if request.url.path.startswith("/api/login"):  # Allow public auth routes
+        PUBLIC_PATHS = {"/api/login", "/health"}
+        if request.url.path in PUBLIC_PATHS:  # Allow public auth routes
             return await call_next(request)
 
         auth_header = request.headers.get("Authorization")
