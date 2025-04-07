@@ -25,7 +25,8 @@ if settings.app_env == "local":
         allow_headers=["*"],  # Allow all headers
     )
 
-app.add_middleware(ApiGatewayAuthMiddleware)  # Middleware to check API token
+if settings.app_env == "prod":
+    app.add_middleware(ApiGatewayAuthMiddleware)  # Middleware to check API token
 
 
 
