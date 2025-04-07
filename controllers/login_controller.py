@@ -6,7 +6,7 @@ from services.login_service import LoginService
 
 router = APIRouter(prefix="/api/login", tags=["Authentication"])
 
-@router.post("/", response_model=LoginResponse)
+@router.post("", response_model=LoginResponse)
 async def login(login: LoginRequest):
     try:
         token = LoginService.get_login_token(login.username, login.password)
