@@ -35,7 +35,7 @@ if settings.app_env == "prod":
 app.include_router(login_controller.router)
 app.include_router(swapi_controller.router)
 
-@app.get("/", response_model=MessageResponse)
+@app.get("", response_model=MessageResponse)
 def read_root():
     return {"message": "Hello, FastAPI!"}
 
