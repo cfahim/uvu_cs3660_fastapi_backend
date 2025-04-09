@@ -3,30 +3,31 @@ import jwt
 import datetime
 from repositories.user_repository import UserRepository
 
-# Secret key for signing JWT (store securely in environment variables)
-# We want this secret and not in the code, we'll remove it later using .env
-SECRET_KEY = "your_secret_key_your_secret_key_your_secret_key_your_secret_key_your_secret_key_"
-ALGORITHM = "HS256"
+
+from config import settings
 
 class LoginService:
+    def __init__(self, user_repository: UserRepository):
+        self.user_repository = user_repository
+
+
     # Function to verify a jwt token
     @staticmethod
     def verify_token(token: str) -> dict:
         try:
             # Decode token
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
             return payload
         except jwt.ExpiredSignatureError:
             raise Exception("Token has expired")
         except jwt.InvalidTokenError:
             raise Exception("Invalid token")
         
-    # Function to verify login from users.json
-    @staticmethod
-    def get_login_token(username: str, password: str) -> str:
+    # Function to verify login from users.json    
+    def get_login_token(self, username: str, password: str) -> str:
         try:
             # Fetch user from database
-            user = UserRepository.get_user_by_username(username)
+            user = self.user_repository.get_user_by_username(username)
             if not user:
                 raise Exception("User not found")
 
@@ -49,7 +50,7 @@ class LoginService:
                 "exp": expiration_time,  # Expiry time
                 "user": user_payload  # Include role or other user attributes if needed
             }
-            token = jwt.encode(token_payload, SECRET_KEY, algorithm=ALGORITHM)
+            token = jwt.encode(token_payload, settings.secret_key, algorithm=settings.algorithm)
 
             return token
         except Exception as e:
