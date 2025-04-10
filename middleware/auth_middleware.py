@@ -2,6 +2,8 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
+from db.db import DatabaseFactory
+from repositories.user_repository import UserRepository
 from services.login_service import LoginService
 
 app = FastAPI()
@@ -22,7 +24,9 @@ class AuthMiddleware(BaseHTTPMiddleware):
         
         token = auth_header.split("Bearer ")[1]
         try:
-            LoginService.verify_token(token)
+            payload = LoginService.verify_token(token)
+            login_service = LoginService(UserRepository(DatabaseFactory()))
+            request.state.user = login_service.get_user_and_roles(payload["user"]["username"])
         except Exception as e:
             return JSONResponse(status_code=401, content={"detail": str(e)})
 
