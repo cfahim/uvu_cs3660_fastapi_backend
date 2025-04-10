@@ -1,6 +1,8 @@
+from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String
 
 from models.base_model import Base
+from models.rbac_model import RoleName, user_roles
 
 
 class User(Base):
@@ -10,7 +12,7 @@ class User(Base):
     name = Column(String(100), nullable=False)
     password_hash = Column(String(512), nullable=False)
 
-    def __init__(self, username: str, name: str, password_hash: str):
-        self.username = username
-        self.name = name        
-        self.password_hash = password_hash
+    roles = relationship('Role', secondary=user_roles, backref='users')
+
+    def has_role(self, role_name: RoleName) -> bool:
+        return any(role.name == role_name for role in self.roles)
