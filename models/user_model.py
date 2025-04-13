@@ -2,7 +2,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, Integer, String
 
 from models.base_model import Base
-from models.rbac_model import RoleName, user_roles
+from models.rbac_model import RoleEnum, user_roles
 
 
 class User(Base):
@@ -14,5 +14,5 @@ class User(Base):
 
     roles = relationship('Role', secondary=user_roles, backref='users')
 
-    def has_role(self, role_name: RoleName) -> bool:
+    def has_role(self, role_name: RoleEnum) -> bool:
         return any(role.name == role_name for role in self.roles)

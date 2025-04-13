@@ -3,7 +3,7 @@ from sqlalchemy import Column, ForeignKey, Integer, Enum as SqlEnum, Table
 from models.base_model import Base
 
 
-class RoleName(enum.Enum):
+class RoleEnum(enum.Enum):
     ADMIN = "admin"
     USERADMIN = "useradmin"
     SWAPIREAD = "swapiread"
@@ -12,7 +12,7 @@ class Role(Base):
     __tablename__ = 'roles'
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(
-        SqlEnum(RoleName, native_enum=False, values_callable=lambda obj: [e.value for e in obj]),
+        SqlEnum(RoleEnum, native_enum=False, values_callable=lambda obj: [e.value for e in obj]),
         unique=True,
         nullable=False
     )
