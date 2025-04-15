@@ -4,6 +4,7 @@ from dependency_injector import containers, providers
 from db.db import DatabaseFactory
 from repositories.swapi_repository import SWAPIRepository
 from repositories.user_repository import UserRepository
+from services.auth_service import AuthorizationService
 from services.login_service import LoginService
 from services.swapi_service import SWAPIService
 
@@ -27,4 +28,9 @@ class Container(containers.DeclarativeContainer):
     swapi_service = providers.Factory(
         SWAPIService,
         swapi_repository=swapi_repository
+    )
+
+    auth_service = providers.Factory(
+        AuthorizationService,
+        user_repository=user_repository
     )

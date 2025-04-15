@@ -26,6 +26,7 @@ from models.base_model import Base
 target_metadata = Base.metadata
 
 from models.user_model import User
+from models.rbac_model import Role, user_roles, RolePermission, Permission
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

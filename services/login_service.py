@@ -1,6 +1,7 @@
 import hashlib
 import jwt
 import datetime
+from models.user_model import User
 from repositories.user_repository import UserRepository
 
 
@@ -22,6 +23,13 @@ class LoginService:
             raise Exception("Token has expired")
         except jwt.InvalidTokenError:
             raise Exception("Invalid token")
+        
+    def get_user_and_roles(self, username: str) -> User:
+        try:
+            # Fetch user from database
+            return self.user_repository.get_user_by_username_with_roles(username)
+        except Exception as e:
+            raise Exception(f"Failed to fetch user roles: {str(e)}")
         
     # Function to verify login from users.json    
     def get_login_token(self, username: str, password: str) -> str:
