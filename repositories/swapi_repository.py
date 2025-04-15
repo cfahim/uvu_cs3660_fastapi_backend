@@ -4,9 +4,11 @@ from schemas.swapi_schema import FilmResponse
 
 
 class SWAPIRepository:
-    @staticmethod
-    async def get_all_films() -> FilmResponse | None:
-        url = "https://swapi.dev/api/films/"
+    def __init__(self): 
+        self.base_url = "https://swapi.dev/api"
+
+    async def get_all_films(self) -> FilmResponse | None:
+        url = f"{self.base_url}/films"
         async with httpx.AsyncClient() as client:
             response = await client.get(url)
             if response.status_code == 200:
