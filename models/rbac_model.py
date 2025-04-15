@@ -8,12 +8,18 @@ from models.base_model import Base
 class RoleEnum(enum.Enum):
     ADMIN = "admin"
     USERADMIN = "useradmin"
+    USERREAD = "userread"
     SWAPIREAD = "swapiread"
 
 class PermissionEnum(enum.Enum):
     SWAPIREAD = "swapi:read"
     USERREAD = "user:read"
     USERDELETE = "user:delete"
+    USERWRITE = "user:write"
+    RBACREAD = "rbac:read"
+    RBACWRITE = "rbac:write"
+    RBACDELETE = "rbac:delete"
+    RBACADMIN = "rbac:admin"
 
 class Role(Base):
     __tablename__ = 'roles'
