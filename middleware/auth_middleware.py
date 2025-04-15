@@ -25,8 +25,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
         token = auth_header.split("Bearer ")[1]
         try:
             payload = LoginService.verify_token(token)
-            # login_service = LoginService(UserRepository(DatabaseFactory()))
-            # request.state.user = login_service.get_user_and_roles(payload["user"]["username"])
             request.state.jwt_payload = payload
         except Exception as e:
             return JSONResponse(status_code=401, content={"detail": str(e)})

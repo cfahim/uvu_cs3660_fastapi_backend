@@ -13,6 +13,7 @@ class LoginService:
 
 
     # Function to verify a jwt token
+    # we'll keep this one static so it can be used in the middleware
     @staticmethod
     def verify_token(token: str) -> dict:
         try:

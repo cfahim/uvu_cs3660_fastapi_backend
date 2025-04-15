@@ -1,11 +1,16 @@
+from operator import attrgetter
+from cachetools import TTLCache, cachedmethod
 from fastapi import HTTPException
 
 from repositories.user_repository import UserRepository
 
 
 class AuthorizationService:
-    def __init__(self, user_repository):
+    _cache = TTLCache(maxsize=100, ttl=60)  # Cache for 1 minute
+    
+    def __init__(self, user_repository, logger):
         self.user_repository: UserRepository = user_repository
+        self.logger = logger
 
     def assert_permissions(self, request, permissions):
         if not request.state.jwt_payload:
@@ -21,7 +26,10 @@ class AuthorizationService:
                 
         raise HTTPException(status_code=403, detail="Forbidden")
 
+    @cachedmethod(attrgetter('_cache'))
     def _get_user_permissions(self, username):
+        self.logger.debug(f"Cache permissions miss for {username}: Fetching permissions from DB")
+
         user = self.user_repository.get_user_by_username_with_roles(username)
         if not user:
             raise HTTPException(status_code=403, detail="Forbidden")
