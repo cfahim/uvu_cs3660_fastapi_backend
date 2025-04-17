@@ -52,6 +52,13 @@ class RbacRepository:
             .filter(Role.name == role_name)
             .first()
         )
+    
+    async def get_only_role_by_name(self, role_name: str) -> Role | None:
+        return (
+            self.db.query(Role)            
+            .filter(Role.name == role_name)
+            .first()
+        )
 
     async def get_all_permissions(self) -> list[Permission] | None:
         return (

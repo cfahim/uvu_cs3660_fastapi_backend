@@ -24,7 +24,8 @@ class RoleSchema(BaseModel):
     class Config:
         from_attributes = True
 
-
+class PutNewRoleSchemaRequest(BaseModel):
+    name: str  
 class PutPermissionSchemaRequest(BaseModel):
     name: str
 class PutRoleSchemaRequest(BaseModel):    

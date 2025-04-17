@@ -9,6 +9,7 @@ class RoleEnum(enum.Enum):
     ADMIN = "admin"
     USERADMIN = "useradmin"
     USERREAD = "userread"
+    RBACADMIN = "rbacadmin"
     SWAPIREAD = "swapiread"
 
 class PermissionEnum(enum.Enum):

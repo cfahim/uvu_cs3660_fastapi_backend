@@ -4,7 +4,7 @@ from dependency_injector.wiring import Provide, inject
 from containers import Container
 from models.rbac_model import PermissionEnum
 from schemas.message_schema import MessageResponse
-from schemas.rbac_schema import PermissionSchema, PutPermissionSchemaRequest, PutRoleSchemaRequest, RoleSchema
+from schemas.rbac_schema import PermissionSchema, PutNewRoleSchemaRequest, PutPermissionSchemaRequest, PutRoleSchemaRequest, RoleSchema
 from services.auth_service import AuthorizationService
 from services.rbac_service import RbacService
 
@@ -86,15 +86,15 @@ async def get_roles(request: Request,
     auth_service.assert_permissions(request, [PermissionEnum.RBACADMIN,PermissionEnum.RBACREAD])
     return await rbac_service.get_all_roles_with_permissions()
 
-@router.put("/roles", response_model=list[RoleSchema])
+@router.put("/roles", response_model=RoleSchema)
 @inject
 async def put_roles(request: Request,
-                    role_request: RoleSchema,
+                    role_request: PutNewRoleSchemaRequest,
                     rbac_service: RbacService = Depends(Provide[Container.rbac_service]),
                     auth_service: AuthorizationService = Depends(Provide[Container.auth_service])):
     auth_service.assert_permissions(request, [PermissionEnum.RBACADMIN,PermissionEnum.RBACWRITE])
    
-    role = rbac_service.get_or_put_role(role_request.name, auth_service.user)
+    role = await rbac_service.get_or_put_role(role_request.name)
     if not role:
         raise HTTPException(status_code=400, detail="Failed to create role")
 

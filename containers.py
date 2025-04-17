@@ -12,6 +12,8 @@ from services.swapi_service import SWAPIService
 
 import logging
 
+from services.user_service import UserService
+
 # Create a shared logger instance (could be more complex, e.g., module-based)
 logger = logging.getLogger("cs3660backend")
 logger.setLevel(logging.DEBUG)
@@ -35,6 +37,7 @@ class Container(containers.DeclarativeContainer):
             "controllers.login_controller", 
             "controllers.swapi_controller",
             "controllers.rbac_controller",
+            "controllers.user_controller",
         ]
     )
 
@@ -72,4 +75,11 @@ class Container(containers.DeclarativeContainer):
     rbac_service = providers.Factory(
         RbacService,
         rbac_repository=rbac_repository
+    )
+
+    user_service = providers.Factory(
+        UserService,
+        user_repository=user_repository,
+        rbac_repository=rbac_repository,
+        logger=logger
     )

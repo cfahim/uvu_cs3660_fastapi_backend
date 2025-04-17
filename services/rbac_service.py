@@ -17,13 +17,13 @@ class RbacService:
     async def get_role_by_name(self, role_name: str) -> Role | None:
         return await self.rbac_repository.get_role_by_name(role_name)
     
-    async def get_or_put_role(self, role_name: str, user: User) -> Role | None:
+    async def get_or_put_role(self, role_name: str) -> Role | None:
         # Check if the role already exists
         role = await self.rbac_repository.get_role_by_name(role_name)
         
         if not role:
             # If not, create a new role
-            role = Role(name=role_name, created_by_id=user.id)
+            role = Role(name=role_name)
             self.rbac_repository.commit_and_refresh(role)
         
         return role
