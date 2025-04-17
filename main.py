@@ -5,7 +5,7 @@ from fastapi.openapi.utils import get_openapi
 from fastapi.middleware.cors import CORSMiddleware
 
 from containers import Container
-from controllers import login_controller, swapi_controller
+from controllers import login_controller, rbac_controller, swapi_controller
 from config import settings
 
 from middleware.api_gateway_middleware import ApiGatewayAuthMiddleware
@@ -37,6 +37,7 @@ if settings.app_env == "prod":
 
 app.include_router(login_controller.router)
 app.include_router(swapi_controller.router)
+app.include_router(rbac_controller.router)
 
 @app.get("", response_model=MessageResponse)
 def read_root():

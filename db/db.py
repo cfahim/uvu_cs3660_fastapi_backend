@@ -6,9 +6,13 @@ from config import settings
 
 class DatabaseFactory:
     def __init__(self):
-        self.engine = create_engine(settings.database_url)
-        self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-        self.db: Session = None
+        try:
+            self.engine = create_engine(settings.database_url)
+            self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+            self.db: Session = None
+        except Exception as e:
+            print(f"Error initializing database connection: {e}")
+            raise
 
     def close_session(self):
         self.db.close()

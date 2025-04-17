@@ -2,10 +2,12 @@
 from dependency_injector import containers, providers
 
 from db.db import DatabaseFactory
+from repositories.rbac_repository import RbacRepository
 from repositories.swapi_repository import SWAPIRepository
 from repositories.user_repository import UserRepository
 from services.auth_service import AuthorizationService
 from services.login_service import LoginService
+from services.rbac_service import RbacService
 from services.swapi_service import SWAPIService
 
 import logging
@@ -31,7 +33,8 @@ class Container(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(
         modules=[
             "controllers.login_controller", 
-            "controllers.swapi_controller"
+            "controllers.swapi_controller",
+            "controllers.rbac_controller",
         ]
     )
 
@@ -60,4 +63,13 @@ class Container(containers.DeclarativeContainer):
         AuthorizationService,
         user_repository=user_repository,
         logger=logger
+    )
+
+    rbac_repository = providers.Factory(
+        RbacRepository,
+        db=db_factory
+    )
+    rbac_service = providers.Factory(
+        RbacService,
+        rbac_repository=rbac_repository
     )
