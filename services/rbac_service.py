@@ -1,6 +1,7 @@
 from models.rbac_model import Permission, Role, RolePermission
 from models.user_model import User
 from repositories.rbac_repository import RbacRepository
+from schemas.rbac_schema import PutPermissionSchemaRequest
 
 
 class RbacService:
@@ -43,6 +44,16 @@ class RbacService:
             self.rbac_repository.commit_and_refresh(permission)
         
         return permission
+    
+    async def update_permission(self, 
+                                permission: Permission, 
+                                updated_permission: PutPermissionSchemaRequest,
+                                user: User) -> Permission | None:
+        # Update the permission name and created_by_id
+        permission.name = updated_permission.name
+        permission.created_by_id = user.id
+        self.rbac_repository.commit_and_refresh(permission)
+
     
     async def delete_permission(self, permission: Permission):
         self.rbac_repository.delete(permission)

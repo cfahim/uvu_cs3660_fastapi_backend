@@ -42,6 +42,23 @@ async def get_permission(request: Request,
 
     return permission
 
+@router.put("/permissions/{permission_id}", response_model=PermissionSchema)
+@inject
+async def put_permission(request: Request,
+                         permission_id: int,
+                         updated_permission: PutPermissionSchemaRequest,
+                         rbac_service: RbacService = Depends(Provide[Container.rbac_service]),
+                         auth_service: AuthorizationService = Depends(Provide[Container.auth_service])):
+    auth_service.assert_permissions(request, [PermissionEnum.RBACADMIN,PermissionEnum.RBACWRITE])
+
+    permission = await rbac_service.get_permission_by_id(permission_id)
+    if not permission:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Permission not found")
+
+    await rbac_service.update_permission(permission, updated_permission, auth_service.user)
+
+    return permission
+
 @router.get("/permissions", response_model=list[PermissionSchema])
 @inject
 async def get_permissions(request: Request,
