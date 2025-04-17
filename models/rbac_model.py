@@ -47,7 +47,13 @@ class Permission(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(100), unique=True, nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
-    created_by_id = Column(ForeignKey('users.id'), nullable=False) 
+    created_by_id = Column(ForeignKey('users.id'), nullable=False)
+
+    role_permissions = relationship(
+        "RolePermission",
+        back_populates="permission",
+        cascade="all, delete-orphan"
+    )
     
 
 # Join table as a class
@@ -60,6 +66,6 @@ class RolePermission(Base):
 
     # Relationships
     role = relationship("Role", back_populates="role_permissions")
-    permission = relationship("Permission", backref="role_permissions")
+    permission = relationship("Permission", back_populates="role_permissions")
     
     

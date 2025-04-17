@@ -35,7 +35,39 @@ class RbacRepository:
             .all()
         )
     
+    async def get_permission_by_id(self, permission_id: int) -> Permission | None:
+        return (
+            self.db.query(Permission)
+            .filter(Permission.id == permission_id)
+            .first()
+        )
+    
+    async def get_role_by_name(self, role_name: str) -> Role | None:
+        return (
+            self.db.query(Role)
+            .options(
+                joinedload(Role.role_permissions)
+                .joinedload(RolePermission.permission)
+            )
+            .filter(Role.name == role_name)
+            .first()
+        )
+
+    async def get_all_permissions(self) -> list[Permission] | None:
+        return (
+            self.db.query(Permission)
+            .all()
+        )
+    
     def commit_and_refresh(self, instance):
         self.db.add(instance)
         self.db.commit()
         self.db.refresh(instance)
+
+    def delete(self, instance):
+        try:
+            self.db.delete(instance)
+            self.db.commit()
+        except Exception as e:
+            self.db.rollback()
+            raise e

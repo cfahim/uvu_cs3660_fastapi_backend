@@ -1,7 +1,9 @@
 from operator import attrgetter
 from cachetools import TTLCache, cachedmethod
 from fastapi import HTTPException
+from cachetools.keys import hashkey
 
+from models.user_model import User
 from repositories.user_repository import UserRepository
 
 
@@ -16,9 +18,12 @@ class AuthorizationService:
         if not request.state.jwt_payload:
             raise HTTPException(status_code=403, detail="Forbidden")
         
+        self.user = self.user_repository.get_user_by_username(request.state.jwt_payload["user"]["username"])
+        if not self.user:
+            raise HTTPException(status_code=403, detail="Forbidden")
 
         # for possible caching later
-        user_permissions = self._get_user_permissions(request.state.jwt_payload["user"]["username"])
+        user_permissions = self._get_user_permissions(self.user)
         
         # check if user has at least one of the permissions
         if any(permission.value in user_permissions for permission in permissions):
@@ -26,13 +31,13 @@ class AuthorizationService:
                 
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    @cachedmethod(attrgetter('_cache'))
-    def _get_user_permissions(self, username):
-        self.logger.debug(f"Cache permissions miss for {username}: Fetching permissions from DB")
-
-        user = self.user_repository.get_user_by_username_with_roles(username)
+    @cachedmethod(attrgetter('_cache'), key=lambda self, user: hashkey(user.username))
+    def _get_user_permissions(self, user: User):
+        # sanity check
         if not user:
             raise HTTPException(status_code=403, detail="Forbidden")
+
+        self.logger.debug(f"Cache permissions miss for {user.username}: Fetching permissions from DB")        
         
         # get all permissions for the user
         permissions = set()
